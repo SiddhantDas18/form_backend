@@ -19,13 +19,24 @@ exports.getFormsPaginated = async (req, res) => {
       prisma.formSubmission.count({ where })
     ]);
 
+    const baseUrl = req.protocol + '://' + req.get('host') + req.baseUrl + req.path;
+    const totalPages = Math.ceil(total / pageSize);
+    const currentPage = parseInt(page);
+    const nav = {
+      self: `${baseUrl}?page=${currentPage}&pageSize=${pageSize}`,
+      first: `${baseUrl}?page=1&pageSize=${pageSize}`,
+      last: `${baseUrl}?page=${totalPages}&pageSize=${pageSize}`,
+      next: currentPage < totalPages ? `${baseUrl}?page=${currentPage + 1}&pageSize=${pageSize}` : null,
+      prev: currentPage > 1 ? `${baseUrl}?page=${currentPage - 1}&pageSize=${pageSize}` : null
+    };
     res.json({
       success: true,
       data: submissions,
-      page: parseInt(page),
+      page: currentPage,
       pageSize: parseInt(pageSize),
       total,
-      totalPages: Math.ceil(total / pageSize)
+      totalPages,
+      links: nav
     });
   } catch (error) {
     console.error(error);
