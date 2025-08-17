@@ -9,7 +9,6 @@
   "scripts": {
   "dev": "nodemon server.js",
   "start": "node server.js",
-  "build": "npx prisma generate",
   "postinstall": "npx prisma generate",
   "prisma:deploy": "npx prisma migrate deploy",
   "test": "echo \"Error: no test specified\" && exit 1"
