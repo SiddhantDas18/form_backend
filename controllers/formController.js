@@ -1,10 +1,13 @@
 // Get paginated and filtered form submissions
 exports.getFormsPaginated = async (req, res) => {
   try {
-    const { page = 1, pageSize = 10, email } = req.query;
+    const { page = 1, pageSize = 10, email, name } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(pageSize);
     const take = parseInt(pageSize);
-    const where = email ? { email: { contains: email, mode: 'insensitive' } } : {};
+    
+    const where = {};
+    if (email) where.email = { contains: email, mode: 'insensitive' };
+    if (name) where.name = { contains: name, mode: 'insensitive' };
 
     const [submissions, total] = await Promise.all([
       prisma.formSubmission.findMany({
@@ -113,6 +116,32 @@ exports.submitForm = async (req, res) => {
     });
 
     res.status(201).json({ success: true, data: submission });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+};
+
+// Delete form submission
+exports.deleteForm = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Check if submission exists
+    const submission = await prisma.formSubmission.findUnique({
+      where: { id: parseInt(id) }
+    });
+    
+    if (!submission) {
+      return res.status(404).json({ success: false, error: 'Submission not found' });
+    }
+    
+    // Delete submission (cascade will handle submissionServices)
+    await prisma.formSubmission.delete({
+      where: { id: parseInt(id) }
+    });
+    
+    res.json({ success: true, message: 'Submission deleted successfully' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, error: 'Server error' });

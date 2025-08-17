@@ -12,4 +12,7 @@ router.post('/form', formController.submitForm);
 // Get all form submissions
 router.get('/form', formController.getForms);
 
+// Delete form submission
+router.delete('/form/:id', formController.deleteForm);
+
 module.exports = router;
