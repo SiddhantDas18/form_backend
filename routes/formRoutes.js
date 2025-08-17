@@ -18,4 +18,7 @@ router.delete('/form/:id', formController.deleteForm);
 // Update status (process/done)
 router.patch('/form/:id/status', formController.updateStatus);
 
+// Debug DB connectivity
+router.get('/debug/db', formController.debugDb);
+
 module.exports = router;

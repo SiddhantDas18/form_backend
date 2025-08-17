@@ -62,6 +62,12 @@ exports.getForms = async (req, res) => {
 };
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+// Log Prisma connection attempt (helps debugging on deployed servers like Render)
+prisma.$connect().then(() => {
+  console.log('Prisma connected to database');
+}).catch((err) => {
+  console.error('Prisma connection error:', err && err.stack ? err.stack : err);
+});
 
 // POST /api/form
 exports.submitForm = async (req, res) => {
@@ -153,6 +159,7 @@ exports.updateStatus = async (req, res) => {
   try {
     const { id } = req.params;
       const { status } = req.body;
+      console.log(`updateStatus called for id=${id} with status=${status}`);
       // Accept the enum values defined in prisma schema
       if (!['processing', 'ongoing', 'done'].includes(status)) {
         return res.status(400).json({ success: false, error: 'Invalid status' });
@@ -165,7 +172,19 @@ exports.updateStatus = async (req, res) => {
 
     res.json({ success: true, data: updated });
   } catch (error) {
-    console.error(error);
+    console.error('updateStatus error:', error && error.stack ? error.stack : error);
     res.status(500).json({ success: false, error: 'Server error' });
+  }
+};
+
+// Simple DB connectivity check
+exports.debugDb = async (req, res) => {
+  try {
+    // run a lightweight query
+    const count = await prisma.formSubmission.count();
+    res.json({ success: true, message: 'DB reachable', count });
+  } catch (err) {
+    console.error('debugDb error:', err && err.stack ? err.stack : err);
+    res.status(500).json({ success: false, error: 'DB unreachable', details: err && err.message ? err.message : String(err) });
   }
 };
