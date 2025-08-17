@@ -147,3 +147,25 @@ exports.deleteForm = async (req, res) => {
     res.status(500).json({ success: false, error: 'Server error' });
   }
 };
+
+// Update status for a submission (process/done)
+exports.updateStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+      const { status } = req.body;
+      // Accept the enum values defined in prisma schema
+      if (!['processing', 'ongoing', 'done'].includes(status)) {
+        return res.status(400).json({ success: false, error: 'Invalid status' });
+      }
+
+      const updated = await prisma.formSubmission.update({
+        where: { id: parseInt(id) },
+        data: { status },
+      });
+
+    res.json({ success: true, data: updated });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+};

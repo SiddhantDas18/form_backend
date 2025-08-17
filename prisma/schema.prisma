@@ -19,6 +19,7 @@ model FormSubmission {
   role         String
   email        String
   mobile       String
+  status       Status    @default(processing)
   submissionServices SubmissionService[]
   eventDates   String
   weddingOf    String
@@ -42,6 +43,12 @@ model SubmissionService {
   formSubmission   FormSubmission @relation(fields: [formSubmissionId], references: [id], onDelete: Cascade)
   service          Service        @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   @@id([formSubmissionId, serviceId])
+}
+
+enum Status {
+  ongoing
+  processing
+  done
 }
 
 

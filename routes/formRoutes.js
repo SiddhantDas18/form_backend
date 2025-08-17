@@ -15,4 +15,7 @@ router.get('/form', formController.getForms);
 // Delete form submission
 router.delete('/form/:id', formController.deleteForm);
 
+// Update status (process/done)
+router.patch('/form/:id/status', formController.updateStatus);
+
 module.exports = router;
